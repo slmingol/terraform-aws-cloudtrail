@@ -9,6 +9,11 @@ module "cloudtrail_label" {
   tags       = "${var.tags}"
 }
 
+resource "aws_sns_topic" "default" {
+  count = "${var.enable_sns ? 1 : 0}"
+  name  = "${var.sns_topic_name}"
+}
+
 resource "aws_cloudtrail" "default" {
   name                          = "${module.cloudtrail_label.id}"
   count                         = "${var.enabled == "true" ? 1 : 0}"
@@ -23,4 +28,5 @@ resource "aws_cloudtrail" "default" {
   event_selector                = "${var.event_selector}"
   kms_key_id                    = "${var.kms_key_arn}"
   is_organization_trail         = "${var.is_organization_trail}"
+  sns_topic_name                = "${var.enable_sns == "true" ? aws_sns_topic.default.name : ""}"
 }
